@@ -18,6 +18,7 @@ import { RepeatBubbleMenu } from './components/repeat-menu/repeat-bubble-menu';
 import { SectionBubbleMenu } from './components/section-menu/section-bubble-menu';
 import { SpacerBubbleMenu } from './components/spacer-menu/spacer-bubble-menu';
 import { TextBubbleMenu } from './components/text-menu/text-bubble-menu';
+import { TextBubbleMenuSimple } from './components/text-menu/text-bubble-menu-simple';
 import { VariableBubbleMenu } from './components/variable-menu/variable-bubble-menu';
 import { extensions as defaultExtensions } from './extensions';
 import { DEFAULT_SLASH_COMMANDS } from './extensions/slash-command/default-slash-commands';
@@ -40,6 +41,7 @@ export type EditorProps = {
   config?: {
     hasMenuBar?: boolean;
     hideContextMenu?: boolean;
+    useSimpleTextMenu?: boolean;
     spellCheck?: boolean;
     wrapClassName?: string;
     toolbarClassName?: string;
@@ -61,6 +63,7 @@ export function Editor(props: EditorProps) {
       bodyClassName = '',
       hasMenuBar = true,
       hideContextMenu = false,
+      useSimpleTextMenu = false,
       spellCheck = false,
       autofocus = 'end',
       immediatelyRender = false,
@@ -151,7 +154,11 @@ export function Editor(props: EditorProps) {
             bodyClassName
           )}
         >
-          <TextBubbleMenu editor={editor} appendTo={menuContainerRef} />
+          {useSimpleTextMenu ? (
+            <TextBubbleMenuSimple editor={editor} appendTo={menuContainerRef} />
+          ) : (
+            <TextBubbleMenu editor={editor} appendTo={menuContainerRef} />
+          )}
           <ImageBubbleMenu editor={editor} appendTo={menuContainerRef} />
           <SpacerBubbleMenu editor={editor} appendTo={menuContainerRef} />
           <EditorContent editor={editor} />

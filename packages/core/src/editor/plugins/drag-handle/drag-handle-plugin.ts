@@ -335,7 +335,15 @@ export function DragHandlePlugin(
   let x = false;
   let currentNode: TNode | null = null;
   let lastNodePos = -1;
-  element.addEventListener('dragstart', (e) => {
+
+  // Find the drag handle element (child with data-drag-handle attribute) or use the container
+  const getDragElement = () => {
+    const dragHandle = element.querySelector('[data-drag-handle]') as HTMLElement;
+    return dragHandle || element;
+  };
+
+  const dragElement = getDragElement();
+  dragElement.addEventListener('dragstart', (e) => {
     const { view } = editor;
     if (!e.dataTransfer) return;
     const { empty, $from, $to } = view.state.selection;
@@ -345,7 +353,36 @@ export function DragHandlePlugin(
       s.find((t) => t.$from === e.$from && t.$to === e.$to)
     );
     const u = empty || !c ? s : d;
-    if (!u.length) return;
+    if (!u.length) {
+      // Fallback: Use currentNodePos if available and set selection
+      if (lastNodePos !== -1 && currentNode) {
+        // Create ranges directly from currentNodePos
+        const fromPos = lastNodePos;
+        const toPos = lastNodePos + currentNode.nodeSize;
+        const y = fromPos;
+        const v = toPos;
+        const C = NodeRangeSelection.create(view.state.doc, y, v);
+        const E = C.content();
+        const h = document.createElement('div');
+        const clonedNode = cloneElement(view?.nodeDOM(lastNodePos) as HTMLElement);
+        h.append(clonedNode);
+        h.style.position = 'absolute';
+        h.style.top = '-10000px';
+        document.body.append(h);
+        e.dataTransfer.clearData();
+        e.dataTransfer.setDragImage(h, 0, 0);
+        view.dragging = { slice: E, move: true };
+        const { tr: g } = view.state;
+        g.setSelection(C as unknown as Selection);
+        view.dispatch(g);
+        document.addEventListener('drop', () => removeNode(h), { once: true });
+        setTimeout(() => {
+          dragElement && (dragElement.style.pointerEvents = 'none');
+        }, 0);
+        return;
+      }
+      return;
+    }
     const { tr: g } = view.state;
     const h = document.createElement('div');
     const y = u[0].$from.pos;
@@ -366,11 +403,11 @@ export function DragHandlePlugin(
     view.dispatch(g);
     document.addEventListener('drop', () => removeNode(h), { once: true });
     setTimeout(() => {
-      element && (element.style.pointerEvents = 'none');
+      dragElement && (dragElement.style.pointerEvents = 'none');
     }, 0);
   });
-  element.addEventListener('dragend', () => {
-    element && (element.style.pointerEvents = 'auto');
+  dragElement.addEventListener('dragend', () => {
+    dragElement && (dragElement.style.pointerEvents = 'auto');
   });
 
   return new Plugin({
@@ -402,7 +439,7 @@ export function DragHandlePlugin(
     view: (e) => {
       var t;
       return (
-        (element.draggable = true),
+        (dragElement.draggable = true),
         (element.style.pointerEvents = 'auto'),
         null === (t = editor.view.dom.parentElement) ||
           undefined === t ||
@@ -437,7 +474,7 @@ export function DragHandlePlugin(
           update(t, n) {
             if (!element || !tippyInstance) return;
             if (
-              ((element.draggable = !x),
+              ((dragElement.draggable = !x),
               e.state.doc.eq(n.doc) || -1 === lastNodePos)
             )
               return;

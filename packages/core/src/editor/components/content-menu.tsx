@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import type { NodeSelection } from '@tiptap/pm/state';
 
 import type { Node } from '@tiptap/pm/model';
-import { Copy, GripVertical, Plus, Trash2 } from 'lucide-react';
+import { Copy, Move, Plus, Trash2 } from 'lucide-react';
 import { BaseButton } from './base-button';
 import {
   Tooltip,
@@ -126,68 +126,68 @@ export function ContentMenu(props: ContentMenuProps) {
       className={cn(editor.isEditable ? 'mly:visible' : 'mly:hidden')}
     >
       <TooltipProvider>
-        <div className="mly:flex mly:items-center mly:pr-1.5">
+        <div className="mly:flex mly:flex-col mly:items-center mly:gap-1  mly:bg-white mly:rounded-full mly:p-1 mly:mr-1">
+          {/* Drag handle */}
           <Tooltip>
             <TooltipTrigger asChild>
               <BaseButton
                 variant="ghost"
                 size="icon"
-                className="mly:size-5! mly:cursor-grab mly:text-gray-500 mly:hover:text-black"
+                className="mly:size-7! mly:cursor-grab mly:text-gray-500 mly:hover:text-black mly:bg-white mly:rounded-full"
+                type="button"
+                data-drag-handle
+              >
+                <Move className="mly:size-3.5 mly:shrink-0" />
+              </BaseButton>
+            </TooltipTrigger>
+            <TooltipContent side="left" sideOffset={8}>Drag to move</TooltipContent>
+          </Tooltip>
+          {/* Delete node button */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <BaseButton
+                variant="ghost"
+                size="icon"
+                className="mly:size-7! mly:cursor-pointer mly:text-gray-500 mly:hover:text-black mly:bg-white mly:rounded-full"
+                onClick={deleteCurrentNode}
+                type="button"
+              >
+                <Trash2 className="mly:size-3.5 mly:shrink-0" />
+              </BaseButton>
+            </TooltipTrigger>
+            <TooltipContent side="left" sideOffset={8}>Delete</TooltipContent>
+          </Tooltip>
+          {/* Duplicate node button */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <BaseButton
+                variant="ghost"
+                size="icon"
+                className="mly:size-7! mly:cursor-pointer mly:text-gray-500 mly:hover:text-black mly:bg-white mly:rounded-full"
+                onClick={duplicateNode}
+                type="button"
+              >
+                <Copy className="mly:size-3.5 mly:shrink-0" />
+              </BaseButton>
+            </TooltipTrigger>
+            <TooltipContent side="left" sideOffset={8}>Duplicate</TooltipContent>
+          </Tooltip>
+          {/* Add new node */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <BaseButton
+                variant="ghost"
+                size="icon"
+                className="mly:size-7! mly:cursor-grab mly:text-gray-500 mly:hover:text-black mly:bg-white mly:rounded-full"
                 onClick={handleAddNewNode}
                 type="button"
               >
                 <Plus className="mly:size-3.5 mly:shrink-0" />
               </BaseButton>
             </TooltipTrigger>
-            <TooltipContent sideOffset={8}>Add new node</TooltipContent>
+            <TooltipContent side="left" sideOffset={8}>Add Element</TooltipContent>
           </Tooltip>
-          <Popover open={menuOpen} onOpenChange={setMenuOpen}>
-            <div className="mly:relative mly:flex mly:flex-col">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <BaseButton
-                    variant="ghost"
-                    size="icon"
-                    className="mly:relative mly:z-1 mly:size-5! mly:cursor-grab mly:text-gray-500 mly:hover:text-black"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setMenuOpen(true);
-                      editor.commands.setNodeSelection(currentNodePos);
-                    }}
-                    type="button"
-                  >
-                    <GripVertical className="mly:size-3.5 mly:shrink-0" />
-                  </BaseButton>
-                </TooltipTrigger>
-                <TooltipContent sideOffset={8}>Node actions</TooltipContent>
-              </Tooltip>
-              <PopoverTrigger className="mly:absolute mly:left-0 mly:top-0 mly:z-0 mly:h-5 mly:w-5" />
-            </div>
 
-            <PopoverContent
-              align="start"
-              side="bottom"
-              sideOffset={8}
-              className="mly:flex mly:w-max mly:flex-col mly:rounded-md mly:p-1"
-            >
-              <BaseButton
-                variant="ghost"
-                onClick={duplicateNode}
-                className="mly:h-auto mly:justify-start mly:gap-2 mly:rounded! mly:px-2 mly:py-1 mly:text-sm mly:font-normal"
-              >
-                <Copy className="mly:size-[15px] mly:shrink-0" />
-                Duplicate
-              </BaseButton>
-              <Divider type="horizontal" />
-              <BaseButton
-                onClick={deleteCurrentNode}
-                className="mly:h-auto mly:justify-start mly:gap-2 mly:rounded! mly:bg-red-100 mly:px-2 mly:py-1 mly:text-sm mly:font-normal mly:text-red-600 mly:hover:bg-red-200 mly:focus:bg-red-200"
-              >
-                <Trash2 className="mly:size-[15px] mly:shrink-0" />
-                Delete
-              </BaseButton>
-            </PopoverContent>
-          </Popover>
         </div>
       </TooltipProvider>
     </DragHandle>
